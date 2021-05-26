@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get the version
-        run: echo "VERSION=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
+        run: echo "VERSION=$(echo ${github.ref:10})" >> $GITHUB_ENV
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
