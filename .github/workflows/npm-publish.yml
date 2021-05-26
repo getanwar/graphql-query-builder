@@ -5,7 +5,7 @@ name: Publish GPR
 
 on:
   release:
-    types: [created]
+    types: [created, edited]
 
 jobs:
   publish-gpr:
@@ -20,7 +20,7 @@ jobs:
           node-version: 12
           registry-url: https://npm.pkg.github.com/
           scope: '@getanwar'
-      - run: npm ci
+      - run: npm install
       - run: npm run build
       - run: npm publish
         env:
