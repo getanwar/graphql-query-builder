@@ -22,6 +22,10 @@ jobs:
           scope: '@getanwar'
       - name: Get the version
         run: echo "VERSION=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
+      - name: Config Git
+        run: |
+          git config --global user.email "$${{ github.actor }}@fakeemail.com"
+          git config --global user.name "${{ github.actor }}"
       - run: npm ci
       - run: npm run build
       - run: npm version ${{ env.VERSION }}
