@@ -5,7 +5,7 @@ name: Publish GPR
 
 on:
   release:
-   types: []
+   types: [created]
 
 jobs:
   publish-gpr:
@@ -20,8 +20,11 @@ jobs:
           node-version: 12
           registry-url: https://npm.pkg.github.com/
           scope: '@getanwar'
+      - name: Get the version
+        run: echo "VERSION=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
       - run: npm install
       - run: npm run build
+      - run: npm version ${{ env.VERSION }}
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
