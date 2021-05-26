@@ -22,7 +22,7 @@ jobs:
           scope: '@getanwar'
       - name: Get the version
         run: echo "VERSION=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
-      - run: npm install
+      - run: npm ci
       - run: npm run build
       - run: npm version ${{ env.VERSION }}
       - run: npm publish
