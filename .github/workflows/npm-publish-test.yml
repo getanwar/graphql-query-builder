@@ -12,10 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get the version
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+        run: echo "VERSION=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
           node-version: 12
-      - run: npm ci ${{ steps.get_version.outputs.VERSION }}
+      - run: npm ci ${{ env.VERSION }}
