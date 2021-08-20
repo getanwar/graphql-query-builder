@@ -1,1 +1,3 @@
-export { default as query } from "./query";
+import buildQuery from './query';
+
+export default buildQuery;

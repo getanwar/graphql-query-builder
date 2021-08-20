@@ -1,20 +1,19 @@
 import isObject from "./util/isObject";
-
 /**
  * @typedef {Object} Args
  * @property {any} value
  * @property {String} type
- * @property {String} [_key]
+ * @property {String} [key]
  *
  * @typedef {Object} Options
- * @property {Object<Args>} [args] args can be an object of values or an object of `Args` type which contains value, type and _key properties
+ * @property {Object<Args>} [args] args can be an object of values or an object of `Args` type which contains value, type and key properties
  * @property {String} [select]
  * @property {String} queryName
  *
  * @param {Array<Options>|Options} options
  * @param {Boolean} [mutation]
  */
-const graphqlQuery = async (options, mutation = false) => {
+const buildQuery = (options, mutation = false) => {
   const multiQueryOptions = isObject(options) ? [options] : options;
   const queryType = mutation ? `mutation ` : `query `;
   let variableStack = multiQueryOptions.reduce(
@@ -63,9 +62,9 @@ function regenarateVariables(entries) {
   const formatKeyVal = ([prop, entry]) => {
     if (entry === undefined) return;
     if (isObject(entry)) {
-      const { _key, value } = entry;
+      const { key, value } = entry;
       if (value === undefined) return;
-      return typeof _key === "string" ? [_key, value] : [prop, value];
+      return typeof key === "string" ? [key, value] : [prop, value];
     }
     return [prop, entry];
   };
@@ -78,13 +77,13 @@ function regenarateVariables(entries) {
 }
 
 function makeQueryParamString([prop, entry]) {
-  let _key = prop;
+  let key = prop;
   if (entry == null) return "";
   if (isObject(entry)) {
     if (entry.value == null) return "";
-    _key = typeof entry._key == "string" ? entry._key : prop;
+    key = typeof entry.key == "string" ? entry.key : prop;
   }
-  return `${prop}: $${_key}`;
+  return `${prop}: $${key}`;
 }
 
 /**
@@ -109,14 +108,14 @@ function getType(value) {
 function makeQueryTypeString([prop, value]) {
   if (value == null) return "";
   let argTypeString = getType(value);
-  let _key = prop;
+  let key = prop;
   if (isObject(value)) {
     if (value.value == null) return "";
     argTypeString = value.type;
-    _key = typeof value._key == "string" ? value._key : prop;
+    key = typeof value.key == "string" ? value.key : prop;
   }
   if (argTypeString) {
-    argTypeString = `$${_key}: ${argTypeString}`;
+    argTypeString = `$${key}: ${argTypeString}`;
   }
   return argTypeString;
 }
@@ -127,4 +126,4 @@ function generateQueryString(queryName, queryFilters, returns) {
   return `${queryName}${filterArgsWrap} ${returnWrap}`;
 }
 
-export default graphqlQuery;
+export default buildQuery;

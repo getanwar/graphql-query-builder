@@ -6,8 +6,9 @@
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "scripts": {
-    "build": "rollup -c",
-    "watch": "rm -rf dist; rollup -c --watch"
+    "clean": "rm -rf dist",
+    "build": "npm run clean && rollup -c",
+    "watch": "npm run clean && rollup -c --watch"
   },
   "files": [
     "dist"
