@@ -16,10 +16,12 @@ import isObject from "./util/isObject";
 const buildQuery = (options, mutation = false) => {
   const multiQueryOptions = isObject(options) ? [options] : options;
   const queryType = mutation ? `mutation ` : `query `;
-  let variableStack = multiQueryOptions.reduce(
-    (stack, next) => Object.assign(stack, next.args),
+  const variableStack = multiQueryOptions.reduce(
+    (stack, next) => Object.assign(stack, ...getVarEntries(next.args)),
     {}
   );
+  const queries = multiQueryOptions.map(makeSingleQuery).join("\n");
+  const variables = regenarateVariables(Object.entries(variableStack));
   const typeArgs = Object.entries(variableStack)
     .map(makeQueryTypeString)
     .filter((v) => v != null) // to filter out null and undefined values
@@ -27,28 +29,40 @@ const buildQuery = (options, mutation = false) => {
   const typeArgsWrap = typeArgs ? `(${typeArgs})` : "";
 
   // Regenerating variable if value is provided in `Args` format
-  variableStack = regenarateVariables(Object.entries(variableStack));
   const groupQueryName = multiQueryOptions
     .map((obj) => obj.queryName)
     .join("_");
-
-  const queries = multiQueryOptions
-    .map((obj) => {
-      const { queryName, args = {}, select } = obj;
-      const queryFilters = Object.entries(args)
-        .map(makeQueryParamString)
-        .filter((v) => v != null) // to filter out null and undefined values
-        .join(", ");
-      return generateQueryString(queryName, queryFilters, select);
-    })
-    .join("\n");
 
   // finally creating the query string
   const query = `${queryType}${groupQueryName}${typeArgsWrap} {
         ${queries}
     }`;
-  return { query, variables: variableStack };
+  return { query, variables };
 };
+
+export default buildQuery;
+
+function makeSingleQuery(option) {
+  const { args = {}, ...restOfArgs } = option;
+  const queryFilters = Object.entries(args)
+    .map(makeQueryParamString)
+    .filter((v) => v != null) // to filter out null and undefined values
+    .join(", ");
+  return generateQueryString({ queryFilters, ...restOfArgs });
+}
+
+function getVarEntries(args) {
+  return Object.entries(args).map(([prop, value]) => {
+    if (isObject(value) && value.key) {
+      const nextValue = { ...value };
+      const { key } = nextValue;
+      delete nextValue.key;
+      return { [key]: nextValue };
+    }
+
+    return { [prop]: value };
+  });
+}
 
 /**
  * Regenerates graphQL variables
@@ -92,17 +106,18 @@ function makeQueryParamString([prop, entry]) {
  * @returns {String}
  */
 function getType(value) {
-  if (typeof value === "number") {
-    return "Int";
-  } else if (typeof value === "string") {
-    return "String";
-  } else if (typeof value === "boolean") {
-    return "Boolean";
-  } else if (Array.isArray(value)) {
-    let arrayItemType = getType(value[0]);
-    return `[${arrayItemType}]`;
+  if (Array.isArray(value)) {
+    const [firstItem] = value;
+    return `[${getType(firstItem)}]`;
   }
-  return "";
+
+  const type = {
+    number: "Int",
+    string: "String",
+    boolean: "Boolean",
+  }[typeof value];
+
+  return type;
 }
 
 function makeQueryTypeString([prop, value]) {
@@ -120,10 +135,9 @@ function makeQueryTypeString([prop, value]) {
   return argTypeString;
 }
 
-function generateQueryString(queryName, queryFilters, returns) {
+function generateQueryString({ queryName, alias, queryFilters, select }) {
+  alias = alias ? `${alias}:` : "";
   const filterArgsWrap = queryFilters ? `(${queryFilters})` : "";
-  const returnWrap = returns ? `{ ${returns} }` : "";
-  return `${queryName}${filterArgsWrap} ${returnWrap}`;
+  const returnWrap = select ? `{ ${select} }` : "";
+  return `${alias}${queryName}${filterArgsWrap} ${returnWrap}`;
 }
-
-export default buildQuery;
