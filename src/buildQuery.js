@@ -1,79 +1,96 @@
+import isObject from "./util/isObject";
+import { isValidInitialString } from "./util/utils";
+
 function typeOf(value) {
-  const type = typeof value;
-  const types = [
-    ["number", "Int"],
-    ["string", "String"],
-  ];
-  const typeMap = new Map(types);
-  return typeMap.get(type);
-}
+  let type = typeof value;
 
-function buildQuery(strings, ...argsList) {
-  function processArgsList(argsList) {
-    const variables = {};
-    const queryStrings = [];
-    const argsStrings = argsList.map((args, idx) => {
-      const argsString = [];
-
-      for (let key in args) {
-        const value = args[key];
-        const type = typeOf(value);
-        const variableName = `${idx}_${key}`;
-
-        variables[variableName] = value;
-        queryStrings.push(`$${variableName}: ${type}`);
-        argsString.push(`${key}: $${variableName}`);
-      }
-
-      return argsString.join(", ");
-    });
-
-    return {
-      variables,
-      argsStrings,
-      queryString: queryStrings.join(", "),
-    };
+  if (isObject(value)) {
+    if (value.type) return value.type;
+    type = typeof value.value;
   }
 
+  return {
+    number: "Int",
+    string: "String",
+    boolean: "Boolean",
+  }[type];
+}
+
+function processArgsList(argsList) {
+  const variables = {};
+  const queryStrings = [];
+  const argsStrings = argsList.map((args, idx) => {
+    const argsString = [];
+
+    for (let key in args) {
+      const value = args[key];
+      const type = typeOf(value);
+      const variableName = `${idx}_${key}`;
+
+      if (!type) {
+        throw new Error(`\`type\` is not defined for \`${key}\` property`);
+      }
+
+      variables[variableName] = value;
+      queryStrings.push(`$${variableName}: ${type}`);
+      argsString.push(`${key}: $${variableName}`);
+    }
+
+    return argsString.join(", ");
+  });
+
+  return {
+    variables,
+    argsStrings,
+    queryString: queryStrings.join(", "),
+  };
+}
+
+function constructString(strings, argsStrings) {
+  const initialString = strings[0].trim().replace(/^(mutation|query)\s+{/, "");
+  return strings
+    .map(
+      (string, position) =>
+        (position === 0 ? initialString : string) +
+        (argsStrings[position] || "")
+    )
+    .join("");
+}
+
+export function buildQuery(strings, ...argsList) {
+  const initialString = strings[0].trim();
+
+  if (!isValidInitialString.test(initialString)) {
+    throw new Error("The query string is not valid");
+  }
+
+  const isMutation = /^mutation\s+{/.test(initialString);
+  const queryType = isMutation ? "mutation" : "query";
   const { variables, argsStrings, queryString } = processArgsList(argsList);
+  const query = `${queryType} my_${queryType}(${queryString}) {
+    ${constructString(strings, argsStrings)}
+  }`;
 
-  const validQueryOrMutationSyntax = /^(?:mutation|query)\s?{/;
-  console.log(validQueryOrMutationSyntax.test(strings[0]));
-
-  const query = `query my_query(${queryString}) {
-          ${strings.map((str, idx) => str + (argsStrings[idx] || "")).join("")}
-      }`;
-
-  console.log({ query, variables });
+  return { query, variables };
 }
 
 // test data
 const userInput = {
-  page: 0,
-  perPage: 0,
+  page: { value: 1 },
+  perPage: "0",
 };
-
 const siteInput = {
-  page: 1,
-  perPage: 1,
+  page: { value: "2" },
+  perPage: "2",
 };
 
-const userInput2 = {
-  page: 2,
-  perPage: 2,
-};
-
-const siteInput2 = {
-  page: 3,
-  perPage: 3,
-};
-
-var queryString = buildQuery`query { 
-    users(${userInput}) {
+var queryString = buildQuery`a(${userInput}) {
       id
       name
-      sites {
+      sites(${siteInput}) {
           id
           domain
       }
   }}`;
+
+console.log(queryString);

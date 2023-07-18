@@ -15,6 +15,7 @@ export default {
       throwOnError: true,
     }),
     resolve(),
+    // https://github.com/rollup/plugins/tree/master/packages/babel#babelhelpers
     babel({ babelHelpers: "runtime" }),
   ],
   external: [/@babel\/runtime/],
