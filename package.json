@@ -1,6 +1,6 @@
 {
   "name": "@getanwar/graphql-query-builder",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "description": "",
   "repository": "git://github.com/getanwar/graphql-query-builder.git",
   "main": "dist/index.cjs.js",
