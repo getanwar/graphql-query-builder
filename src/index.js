@@ -1,3 +1,4 @@
-import buildQuery from './query';
+import buildQueryLegacy from "./query";
+export { buildQuery } from "./buildQuery/buildQuery";
 
-export default buildQuery;
+export default buildQueryLegacy;
