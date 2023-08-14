@@ -1,5 +1,5 @@
-import isObject from "./util/isObject";
-import { isValidInitialString } from "./util/utils";
+import isObject from "../util/isObject";
+import { inSingleLine, isEmpty, isValidInitialString } from "../util/utils";
 
 function typeOf(value) {
   let type = typeof value;
@@ -42,19 +42,22 @@ function processArgsList(argsList) {
   return {
     variables,
     argsStrings,
-    queryString: queryStrings.join(", "),
+    varString: queryStrings.join(", "),
   };
 }
 
-function constructString(strings, argsStrings) {
-  const initialString = strings[0].trim().replace(/^(mutation|query)\s+{/, "");
-  return strings
-    .map(
-      (string, position) =>
-        (position === 0 ? initialString : string) +
-        (argsStrings[position] || "")
-    )
+export function constructString(strings, argsStrings) {
+  const resultString = strings
+    .map((string, position) => {
+      return string + (argsStrings[position] || "");
+    })
     .join("");
+
+  const firstPartPat = /^(mutation|query)\s+{/;
+  if (firstPartPat.test(strings[0].trim())) {
+    return resultString.replace(firstPartPat, "").replace(/}$/, "");
+  }
+  return resultString;
 }
 
 export function buildQuery(strings, ...argsList) {
@@ -66,31 +69,14 @@ export function buildQuery(strings, ...argsList) {
 
   const isMutation = /^mutation\s+{/.test(initialString);
   const queryType = isMutation ? "mutation" : "query";
-  const { variables, argsStrings, queryString } = processArgsList(argsList);
-  const query = `${queryType} my_${queryType}(${queryString}) {
+  const { variables, argsStrings, varString } = processArgsList(argsList);
+  const queryString = varString ? `my_${queryType}(${varString})` : "";
+  const query = `${queryType} ${queryString} {
     ${constructString(strings, argsStrings)}
   }`;
 
-  return { query, variables };
+  const result = { query: inSingleLine(query) };
+  if (!isEmpty(variables)) result.variables = variables;
+
+  return result;
 }
-
-// test data
-const userInput = {
-  page: { value: 1 },
-  perPage: "0",
-};
-const siteInput = {
-  page: { value: "2" },
-  perPage: "2",
-};
-
-var queryString = buildQuery`a(${userInput}) {
-      id
-      name
-      sites(${siteInput}) {
-          id
-          domain
-      }
-  }}`;
-
-console.log(queryString);
