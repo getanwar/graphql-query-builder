@@ -46,7 +46,7 @@ function processArgsList(argsList) {
   };
 }
 
-export function constructString(strings, argsStrings) {
+function constructString(strings, argsStrings) {
   const resultString = strings
     .map((string, position) => {
       return string + (argsStrings[position] || "");
