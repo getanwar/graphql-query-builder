@@ -1,8 +1,10 @@
 # GraphQL Query Builder 
 
-This package for your client application that communicate with a GraphQL server. You can write `gql` flovored syntax for graphql query without having to depend on `graphql` package. It will help to reduce the bundle size.
+This package for your client application that communicates with a GraphQL server. You can write `gql` flovored syntax for graphql query without having to depend on `graphql` package. Thus it helps you to reduce the bundle size
 
 ## Usage
+
+This package is not a graphql client, so you have to handle data fetching. It only generates a graphql query for your input. You can use `fetch` or `axios` to send the query to your server
 
 ### Installation
 
@@ -38,6 +40,10 @@ body = {
     }`
 }
 */
+const response = await fetch('/graphql', {
+    method: "POST",
+    body: JSON.stringify(body)
+});
 ```
 
 The above example is for the most simple graphql query. But you can use this package to create the most complex graphql query/mutation.
@@ -71,6 +77,10 @@ body = {
     variables: { "0_id": 1,  "1_status": "PUBLISHED" }
 }
 */
+const response = await fetch('/graphql', {
+    method: "POST",
+    body: JSON.stringify(body)
+});
 ```
 
 ## Syntax
@@ -87,7 +97,7 @@ const body = buildQuery`YOUR_QUERY_STRING`;
 const result = await fetch('/graphql', {
     method: "POST",
     body: JSON.stringify(body)
-})
+});
 ```
 
 ### Function Returns
