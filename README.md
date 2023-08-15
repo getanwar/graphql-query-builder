@@ -93,7 +93,7 @@ const result = await fetch('/graphql', {
 ### Function Returns
 The function returns an object of the following properties
 ```ts
-{
+type TQuildQuery = {
     query: string,
     variables: { [key: string]: any }
 } 
