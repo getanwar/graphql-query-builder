@@ -27,7 +27,7 @@ yarn add @getanwar/graphql-query-builder
 ```js
 import { buildQuery } from "@getanwar/graphql-query-builder";
 
-const body = buildQuery`query users {
+const body = buildQuery`users {
     id name email
 }`
 // Output 

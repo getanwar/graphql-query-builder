@@ -7,7 +7,9 @@ describe("buildQuery Test", () => {
   });
 
   it("should pass when query prefix is given", async () => {
-    const body = buildQuery`query { user{} }`;
+    const body = buildQuery`query { 
+      user{} 
+    }`;
     expect(body.query).toBe(`query { user{} }`);
   });
 
