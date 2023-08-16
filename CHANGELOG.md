@@ -1,5 +1,11 @@
 # @getanwar/graphql-query-builder
 
+## 1.0.1
+
+### Patch Changes
+
+- aa52761: Fix issue with nested args
+
 ## 1.0.0
 
 ### Major Changes
