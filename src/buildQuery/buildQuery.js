@@ -16,6 +16,13 @@ function typeOf(value) {
   }[type];
 }
 
+function getValue(value, key) {
+  if (["number", "string", "boolean"].includes(typeof value)) return value;
+  if (isObject(value) && value.value) return value.value;
+
+  throw new Error(`The value is not in acceptable format for ${key}`);
+}
+
 function processArgsList(argsList) {
   const variables = {};
   const queryStrings = [];
@@ -23,8 +30,8 @@ function processArgsList(argsList) {
     const argsString = [];
 
     for (let key in args) {
-      const value = args[key];
-      const type = typeOf(value);
+      const value = getValue(args[key], key);
+      const type = typeOf(args[key]);
       const variableName = `${idx}_${key}`;
 
       if (!type) {
