@@ -1,5 +1,11 @@
 # @getanwar/graphql-query-builder
 
+## 1.1.0
+
+### Minor Changes
+
+- 0800591: Fix: numeric query args prfix
+
 ## 1.0.1
 
 ### Patch Changes
