@@ -55,7 +55,7 @@ const input = { id: 1 };
 const filter = {
     status: { value: "PUBLISHED", type: "TodoEnum!" }
 };
-const body = buildQuery`query user(${input}) {
+const body = buildQuery`user(${input}) {
     id
     email
     todos(${filter}) {

@@ -16,13 +16,13 @@ describe("buildQuery Test", () => {
   it("should return query with args", async () => {
     const input = { id: 1 };
     const body = buildQuery`user(${input}){}`;
-    expect(body.query).toBe(`query my_query($0_id: Int) { user(id: $0_id){} }`);
+    expect(body.query).toBe(`query my_query($id_0: Int) { user(id: $id_0){} }`);
   });
 
   it("should return variables", async () => {
     const input = { id: 1, status: { value: "ACTIVE", type: "StatusEnum!" } };
     const body = buildQuery`user(${input}){}`;
-    expect(body.variables).toStrictEqual({ "0_id": 1, "0_status": "ACTIVE" });
+    expect(body.variables).toStrictEqual({ id_0: 1, status_0: "ACTIVE" });
   });
 
   it("should throw an error for invalid input", async () => {
@@ -38,7 +38,7 @@ describe("buildQuery Test", () => {
     const body = buildQuery`mutation { createUser(${input}){ id name } }`;
 
     expect(body.query).toBe(
-      `mutation my_mutation($0_name: String) { createUser(name: $0_name){ id name } }`
+      `mutation my_mutation($name_0: String) { createUser(name: $name_0){ id name } }`
     );
   });
 
@@ -47,7 +47,7 @@ describe("buildQuery Test", () => {
     const body = buildQuery`mutation { createUser(${input}) }`;
 
     expect(body.query).toBe(
-      `mutation my_mutation($0_name: String) { createUser(name: $0_name) }`
+      `mutation my_mutation($name_0: String) { createUser(name: $name_0) }`
     );
   });
 
@@ -55,9 +55,9 @@ describe("buildQuery Test", () => {
     const input = { id: 1, name: "John" };
     const body = buildQuery`user(${input}){}`;
     expect(body.query).toBe(
-      "query my_query($0_id: Int, $0_name: String) { user(id: $0_id, name: $0_name){} }"
+      "query my_query($id_0: Int, $name_0: String) { user(id: $id_0, name: $name_0){} }"
     );
-    expect(body.variables).toEqual({ "0_id": 1, "0_name": "John" });
+    expect(body.variables).toEqual({ id_0: 1, name_0: "John" });
   });
 
   it("should throw an error for invalid initial string", () => {
@@ -70,7 +70,7 @@ describe("buildQuery Test", () => {
     const input = { id: 1, name: "John" };
     const body = buildQuery`mutation { updateUser(${input}) }`;
     expect(body.query).toBe(
-      "mutation my_mutation($0_id: Int, $0_name: String) { updateUser(id: $0_id, name: $0_name) }"
+      "mutation my_mutation($id_0: Int, $name_0: String) { updateUser(id: $id_0, name: $name_0) }"
     );
   });
 
@@ -84,11 +84,11 @@ describe("buildQuery Test", () => {
     };
     const body = buildQuery`mutation { updateUser(${input}) }`;
     expect(body.query).toBe(
-      "mutation my_mutation($0_id: Int, $0_profile: UserProfileInput) { updateUser(id: $0_id, profile: $0_profile) }"
+      "mutation my_mutation($id_0: Int, $profile_0: UserProfileInput) { updateUser(id: $id_0, profile: $profile_0) }"
     );
     expect(body.variables).toEqual({
-      "0_id": 1,
-      "0_profile": { age: 30, email: "john@example.com" },
+      id_0: 1,
+      profile_0: { age: 30, email: "john@example.com" },
     });
   });
 
@@ -106,13 +106,13 @@ describe("buildQuery Test", () => {
     };
     const body = buildQuery`mutation { updateUser(${input}) }`;
     expect(body.query).toBe(
-      "mutation my_mutation($0_id: Int, $0_profile: UserProfileInput, $0_address: AddressInput) { updateUser(id: $0_id, profile: $0_profile, address: $0_address) }"
+      "mutation my_mutation($id_0: Int, $profile_0: UserProfileInput, $address_0: AddressInput) { updateUser(id: $id_0, profile: $profile_0, address: $address_0) }"
     );
 
     expect(body.variables).toEqual({
-      "0_id": 1,
-      "0_profile": { age: 30, email: "john@example.com" },
-      "0_address": { city: "New York", country: "USA" },
+      id_0: 1,
+      profile_0: { age: 30, email: "john@example.com" },
+      address_0: { city: "New York", country: "USA" },
     });
   });
 });

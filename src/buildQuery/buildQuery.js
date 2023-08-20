@@ -32,7 +32,7 @@ function processArgsList(argsList) {
     for (let key in args) {
       const value = getValue(args[key], key);
       const type = typeOf(args[key]);
-      const variableName = `${idx}_${key}`;
+      const variableName = `${key}_${idx}`;
 
       if (!type) {
         throw new Error(`\`type\` is not defined for \`${key}\` property`);
